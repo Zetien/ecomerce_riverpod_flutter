@@ -1,3 +1,3 @@
-# teslo_app_z
+# ecommerce_riverpod_flutter
 
 A new Flutter project.
