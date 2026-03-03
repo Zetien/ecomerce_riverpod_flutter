@@ -27,10 +27,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void registerUser(String email, String password, String fullName) async {
+  Future<void> registerUser(
+    String fullName,
+    String email,
+    String password,
+  ) async {
     try {
-      final user = await authRepository.register(email, password, fullName);
-      _setLoggedUser(user);
+      await authRepository.register(email, password, fullName);
+
+      state = state.copyWith(
+        authStatus: AuthStatus.registered,
+        errorMessage: '',
+      );
     } on CustomError catch (e) {
       logout(e.message);
     } catch (e) {
@@ -55,7 +63,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-enum AuthStatus { checking, authenticated, notAuthenticated }
+enum AuthStatus { checking, authenticated, notAuthenticated, registered }
 
 class AuthState {
   final AuthStatus authStatus;

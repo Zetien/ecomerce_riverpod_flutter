@@ -11,9 +11,9 @@ class ConfirmPassword extends FormzInput<String, ConfirmPasswordError> {
   const ConfirmPassword.pure({this.originalPassword = ''}) : super.pure('');
 
   const ConfirmPassword.dirty(
-    String value, {
+    super.value, {
     this.originalPassword = '',
-  }) : super.dirty(value);
+  }) : super.dirty();
 
   String? get errorMessage {
     if (isValid || isPure) return null;

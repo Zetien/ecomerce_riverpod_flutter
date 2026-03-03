@@ -5,7 +5,7 @@ enum NameError { empty }
 class Name extends FormzInput<String, NameError> {
 
   const Name.pure() : super.pure('');
-  const Name.dirty(String value) : super.dirty(value);
+  const Name.dirty(super.value) : super.dirty();
 
   String? get errorMessage {
     if (isValid || isPure) return null;
