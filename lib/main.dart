@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:teslo_app_z/config/router/app_router.dart';
-import 'package:teslo_app_z/config/theme/app_theme.dart';
+import 'package:teslo_app_z/config/config.dart';
 
-void main() {
+
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Environment.initEnvironment();
   runApp(const ProviderScope(child: MainApp()));
 }
 

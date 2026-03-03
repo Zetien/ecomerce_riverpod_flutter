@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:formz/formz.dart';
+import 'package:teslo_app_z/features/auth/presentation/providers/auth_provider.dart';
 import 'package:teslo_app_z/features/shared/infraestructure/inputs/confirm_password.dart';
 import 'package:teslo_app_z/features/shared/infraestructure/inputs/email.dart';
 import 'package:teslo_app_z/features/shared/infraestructure/inputs/name.dart';
 import 'package:teslo_app_z/features/shared/infraestructure/inputs/password.dart';
 
 class RegisterFormState {
-  final Name name;
+  final Name fullName;
   final Email email;
   final Password password;
   final ConfirmPassword confirmPassword;
@@ -14,7 +15,7 @@ class RegisterFormState {
   final bool isFormPosted;
 
   RegisterFormState({
-    this.name = const Name.pure(),
+    this.fullName = const Name.pure(),
     this.email = const Email.pure(),
     this.password = const Password.pure(),
     this.confirmPassword = const ConfirmPassword.pure(),
@@ -23,14 +24,14 @@ class RegisterFormState {
   });
 
   RegisterFormState copyWith({
-    Name? name,
+    Name? fullName,
     Email? email,
     Password? password,
     ConfirmPassword? confirmPassword,
     bool? isValid,
     bool? isFormPosted,
   }) => RegisterFormState(
-    name: name ?? this.name,
+    fullName: fullName ?? this.fullName,
     email: email ?? this.email,
     password: password ?? this.password,
     confirmPassword: confirmPassword ?? this.confirmPassword,
@@ -41,7 +42,7 @@ class RegisterFormState {
   @override
   String toString() {
     return '''  RegisterFormState:
-      name: $name, 
+      fullName: $fullName, 
       email: $email, 
       password: $password, 
       confirmPassword: $confirmPassword, 
@@ -52,13 +53,18 @@ class RegisterFormState {
 }
 
 class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
-  RegisterFormNotifier() : super(RegisterFormState());
+  final Function(String, String, String) registerUserCallback;
+  
+   RegisterFormNotifier({
+    required this.registerUserCallback,
+  }) : super(RegisterFormState());
+
 
   void onNameChanged(String value) {
     final newName = Name.dirty(value);
 
     state = state.copyWith(
-      name: newName,
+      fullName: newName,
       isValid: Formz.validate([
         newName,
         state.email,
@@ -107,14 +113,18 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
     );
   }
 
-  void onFormSubmit() {
+  void onFormSubmit() async {
     _touchEveryField();
     if (!state.isValid) return;
-    print(state);
+    await registerUserCallback(
+      state.fullName.value,
+      state.email.value,
+      state.password.value,
+    );
   }
 
   void _touchEveryField() {
-    final name = Name.dirty(state.name.value);
+    final fullName = Name.dirty(state.fullName.value);
     final email = Email.dirty(state.email.value);
     final password = Password.dirty(state.password.value);
     final confirmPassword = ConfirmPassword.dirty(
@@ -124,18 +134,18 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
 
     state = state.copyWith(
       isFormPosted: true,
-      name: name,
+      fullName: fullName,
       email: email,
       password: password,
       confirmPassword: confirmPassword,
-      isValid: Formz.validate([name, email, password, confirmPassword]),
+      isValid: Formz.validate([fullName, email, password, confirmPassword]),
     );
   }
 }
 
-final registerFormProvider =
-    StateNotifierProvider.autoDispose<RegisterFormNotifier, RegisterFormState>((
-      ref,
-    ) {
-      return RegisterFormNotifier();
-    });
+final registerFormProvider = StateNotifierProvider.autoDispose<RegisterFormNotifier, RegisterFormState>((ref) {
+      final registerUserCallback = ref.watch(authProvider.notifier).registerUser;
+      return RegisterFormNotifier( 
+        registerUserCallback: registerUserCallback,
+       );
+});

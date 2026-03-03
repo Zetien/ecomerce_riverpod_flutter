@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:teslo_app_z/features/auth/presentation/providers/auth_provider.dart';
 import 'package:teslo_app_z/features/auth/presentation/providers/register_form_provider.dart';
 import 'package:teslo_app_z/features/shared/widgets/custom_filled_button.dart';
 import 'package:teslo_app_z/features/shared/widgets/custom_text_form_field.dart';
@@ -68,9 +69,21 @@ class RegisterScreen extends StatelessWidget {
 class _RegisterForm extends ConsumerWidget {
   const _RegisterForm();
 
+   void showSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final registerForm = ref.watch(registerFormProvider);
+
+    ref.listen(authProvider, (previous, next){
+      if(next.errorMessage.isEmpty) return;
+      showSnackbar(context, next.errorMessage);
+    });
 
     final textStyles = Theme.of(context).textTheme;
 
@@ -87,7 +100,7 @@ class _RegisterForm extends ConsumerWidget {
               label: 'Nombre completo',
               keyboardType: TextInputType.emailAddress,
               onChanged: ref.read(registerFormProvider.notifier).onNameChanged,
-              errorMessage: registerForm.isFormPosted ? registerForm.name.errorMessage : null,
+              errorMessage: registerForm.isFormPosted ? registerForm.fullName.errorMessage : null,
             ),
             const SizedBox( height: 30 ),
       
