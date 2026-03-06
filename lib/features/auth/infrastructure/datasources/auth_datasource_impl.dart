@@ -3,13 +3,25 @@ import 'package:teslo_app_z/config/config.dart';
 import 'package:teslo_app_z/features/auth/domain/domain.dart';
 import 'package:teslo_app_z/features/auth/infrastructure/infrastructure.dart';
 
-
 class AuthDataSourceImpl extends AuthDatasource {
   final dio = Dio(BaseOptions(baseUrl: Environment.apiUrl));
   @override
-  Future<User> checkAuthStatus(String token) {
-    // TODO: implement checkAuthStatus
-    throw UnimplementedError();
+  Future<User> checkAuthStatus(String token) async {
+    try {
+      final response = await dio.get(
+        '/auth/check-status',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      final user = UserMapper.userJsonToEntity(response.data);
+      return user;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw CustomError('Token no válido');
+      }
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
   }
 
   @override
@@ -23,8 +35,10 @@ class AuthDataSourceImpl extends AuthDatasource {
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401){
-        throw CustomError(e.response?.data['message'] ?? 'Credenciales incorrectas');
+      if (e.response?.statusCode == 401) {
+        throw CustomError(
+          e.response?.data['message'] ?? 'Credenciales incorrectas',
+        );
       }
       if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisar coneccion de internet');
@@ -47,8 +61,10 @@ class AuthDataSourceImpl extends AuthDatasource {
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 400){
-        throw CustomError(e.response?.data['message'] ?? 'Error al registrar usuario');
+      if (e.response?.statusCode == 400) {
+        throw CustomError(
+          e.response?.data['message'] ?? 'Error al registrar usuario',
+        );
       }
       if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisar coneccion de internet');

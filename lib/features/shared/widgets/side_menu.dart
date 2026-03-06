@@ -1,36 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:teslo_app_z/features/auth/presentation/providers/auth_provider.dart';
 import 'package:teslo_app_z/features/shared/widgets/custom_filled_button.dart';
 
-
-class SideMenu extends StatefulWidget {
-
+class SideMenu extends ConsumerStatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
 
-  const SideMenu({
-    super.key, 
-    required this.scaffoldKey
-  });
+  const SideMenu({super.key, required this.scaffoldKey});
 
   @override
-  State<SideMenu> createState() => _SideMenuState();
+  SideMenuState createState() => SideMenuState();
 }
 
-class _SideMenuState extends State<SideMenu> {
-
+class SideMenuState extends ConsumerState<SideMenu> {
   int navDrawerIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-
     final hasNotch = MediaQuery.of(context).viewPadding.top > 35;
     final textStyles = Theme.of(context).textTheme;
-    
 
     return NavigationDrawer(
       elevation: 1,
       selectedIndex: navDrawerIndex,
       onDestinationSelected: (value) {
-
         setState(() {
           navDrawerIndex = value;
         });
@@ -38,25 +31,22 @@ class _SideMenuState extends State<SideMenu> {
         // final menuItem = appMenuItems[value];
         // context.push( menuItem.link );
         widget.scaffoldKey.currentState?.closeDrawer();
-
       },
       children: [
-
         Padding(
           padding: EdgeInsets.fromLTRB(20, hasNotch ? 0 : 20, 16, 0),
-          child: Text('Saludos', style: textStyles.titleMedium ),
+          child: Text('Saludos', style: textStyles.titleMedium),
         ),
 
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 16, 10),
-          child: Text('Tony Stark', style: textStyles.titleSmall ),
+          child: Text('Tony Stark', style: textStyles.titleSmall),
         ),
 
         const NavigationDrawerDestination(
-            icon: Icon( Icons.home_outlined ), 
-            label: Text( 'Productos' ),
+          icon: Icon(Icons.home_outlined),
+          label: Text('Productos'),
         ),
-
 
         const Padding(
           padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
@@ -68,16 +58,18 @@ class _SideMenuState extends State<SideMenu> {
           child: Text('Otras opciones'),
         ),
 
-        
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: CustomFilledButton(
-            onPressed: () {},
-            text: 'Cerrar sesión'
+            onPressed: () {
+              ref.read(authProvider.notifier).logout();
+
+              widget.scaffoldKey.currentState?.closeDrawer();
+            },
+            text: 'Cerrar sesión',
           ),
         ),
-
-      ]
+      ],
     );
   }
 }

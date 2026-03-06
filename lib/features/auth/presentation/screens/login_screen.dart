@@ -59,20 +59,18 @@ class _LoginForm extends ConsumerWidget {
 
   void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final loginForm = ref.watch(loginFormProvider);
 
-    ref.listen(authProvider, (previous, next){
-        if(next.errorMessage.isEmpty) return;
-        showSnackbar(context, next.errorMessage);
-
+    ref.listen(authProvider, (previous, next) {
+      if (next.errorMessage.isEmpty) return;
+      showSnackbar(context, next.errorMessage);
     });
 
     final textStyles = Theme.of(context).textTheme;
@@ -89,7 +87,9 @@ class _LoginForm extends ConsumerWidget {
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
             onChanged: ref.read(loginFormProvider.notifier).onEmailChanged,
-            errorMessage: loginForm.isFormPosted ? loginForm.email.errorMessage : null,
+            errorMessage: loginForm.isFormPosted
+                ? loginForm.email.errorMessage
+                : null,
           ),
           const SizedBox(height: 30),
 
@@ -97,7 +97,9 @@ class _LoginForm extends ConsumerWidget {
             label: 'Contraseña',
             obscureText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
-            errorMessage: loginForm.isFormPosted ? loginForm.password.errorMessage : null,
+            errorMessage: loginForm.isFormPosted
+                ? loginForm.password.errorMessage
+                : null,
           ),
 
           const SizedBox(height: 30),
@@ -108,9 +110,9 @@ class _LoginForm extends ConsumerWidget {
             child: CustomFilledButton(
               text: 'Ingresar',
               buttonColor: Colors.black,
-              onPressed: () {
-                ref.read(loginFormProvider.notifier).onFormSubmit();
-              },
+              onPressed: loginForm.isPosting
+                  ? null
+                  : ref.read(loginFormProvider.notifier).onFormSubmit,
             ),
           ),
 
