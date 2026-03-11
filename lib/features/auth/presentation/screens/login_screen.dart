@@ -100,6 +100,7 @@ class _LoginForm extends ConsumerWidget {
             errorMessage: loginForm.isFormPosted
                 ? loginForm.password.errorMessage
                 : null,
+            onFieldSubmitted: (_) => ref.read(loginFormProvider.notifier).onFormSubmit(), // Permite enviar el formulario al presionar "Enter" en el teclado
           ),
 
           const SizedBox(height: 30),
