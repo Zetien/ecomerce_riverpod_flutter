@@ -7,6 +7,8 @@ import 'package:teslo_app_z/features/auth/presentation/screens/login_screen.dart
 import 'package:teslo_app_z/features/auth/presentation/screens/register_screen.dart';
 import 'package:teslo_app_z/features/products/presentation/screens/products_screen.dart';
 
+import '../../features/products/products.dart';
+
 final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
   return GoRouter(
@@ -28,6 +30,7 @@ final goRouterProvider = Provider((ref) {
 
       ///* Product Routes
       GoRoute(path: '/', builder: (context, state) => const ProductsScreen()),
+      GoRoute(path: '/product/:id', builder: (context, state) => ProductScreen(productId: state.pathParameters['id'] ?? 'No-Id')),
     ],
     redirect: (context, state) {
       final isGoingTo = state.matchedLocation;
