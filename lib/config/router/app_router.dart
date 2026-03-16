@@ -5,7 +5,7 @@ import 'package:teslo_app_z/features/auth/presentation/providers/auth_provider.d
 import 'package:teslo_app_z/features/auth/presentation/screens/check_auth_status_screen.dart';
 import 'package:teslo_app_z/features/auth/presentation/screens/login_screen.dart';
 import 'package:teslo_app_z/features/auth/presentation/screens/register_screen.dart';
-import 'package:teslo_app_z/features/products/presentation/screens/products_screen.dart';
+
 
 import '../../features/products/products.dart';
 
