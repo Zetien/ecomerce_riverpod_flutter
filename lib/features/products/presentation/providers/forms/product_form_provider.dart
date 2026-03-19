@@ -4,23 +4,27 @@ import 'package:teslo_app_z/config/constants/enviroment.dart';
 
 import '../../../../shared/shared.dart';
 import '../../../domain/domain.dart';
+import '../providers.dart';
 
-
-final productFormProvider = StateNotifierProvider.autoDispose.family<ProductFormNotifier, ProductFormState, Product>(
-  (ref, product){
-  
-  //TODO createUpdateCallback
-  
-  return ProductFormNotifier(
-    product: product
-    //TODO onSubmitCallbacl: createUpdateCAllback
-  );
-});
+final productFormProvider = StateNotifierProvider.autoDispose
+    .family<ProductFormNotifier, ProductFormState, Product>((ref, product) {
+      // final createUpdatecallback = ref
+      //     .watch(productsRepositoryProvider)
+      //     .createUpdateProduct;
+      final createUpdateCallback = ref
+          .watch(productsProvider.notifier)
+          .createOrUpdateProduct;
+      return ProductFormNotifier(
+        product: product,
+        onSubmitCallback: createUpdateCallback,
+      );
+    });
 
 class ProductFormNotifier extends StateNotifier<ProductFormState> {
-  final void Function(Map<String, dynamic> productLike)? onsubmitCallback;
+  final Future<bool> Function(Map<String, dynamic> productLike)?
+  onSubmitCallback;
 
-  ProductFormNotifier({this.onsubmitCallback, required Product product})
+  ProductFormNotifier({this.onSubmitCallback, required Product product})
     : super(
         ProductFormState(
           id: product.id,
@@ -39,10 +43,11 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
   Future<bool> onFormSubmit() async {
     _touchedEverything();
     if (!state.isFormValid) return false;
-    if (onsubmitCallback == null) return false;
+
+    if (onSubmitCallback == null) return false;
 
     final productLike = {
-      'id': state.id,
+      'id': (state.id == 'new') ? null : state.id,
       'title': state.title.value,
       'price': state.price.value,
       'description': state.description,
@@ -51,12 +56,18 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
       'sizes': state.sizes,
       'gender': state.gender,
       'tags': state.tags.split(','),
-      'images': state.images.map(
-        (image) => image.replaceAll('${Environment.apiUrl}/files/product/', '')
-      ).toList(),
+      'images': state.images
+          .map(
+            (image) =>
+                image.replaceAll('${Environment.apiUrl}/files/product/', ''),
+          )
+          .toList(),
     };
-    return true;
-    //TODO: llamar on submit callback
+    try {
+      return await onSubmitCallback!(productLike);
+    } catch (e) {
+      return false;
+    }
   }
 
   void _touchedEverything() {
